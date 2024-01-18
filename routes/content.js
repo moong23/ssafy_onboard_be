@@ -2,6 +2,7 @@ var dotenv = require("dotenv");
 var express = require("express");
 var ContentRouter = express.Router();
 const mongoose = require("mongoose");
+const AutoIncrement = require("mongoose-sequence")(mongoose);
 
 dotenv.config();
 
@@ -13,8 +14,9 @@ var content = mongoose.Schema({
   content: String,
   date: String,
   writer: String,
+  id: Number,
 });
-
+content.plugin(AutoIncrement, { inc_field: "id" });
 var Content = mongoose.model("Content", content);
 
 ContentRouter.post("/create", async function (req, res) {
@@ -44,6 +46,17 @@ ContentRouter.get("/", async function (req, res) {
     const content = await Content.find();
     console.log(content);
     res.status(200).send(content);
+  } catch (err) {
+    console.log("Error occurred", err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+ContentRouter.get("/:id", async function (req, res) {
+  try {
+    const contentWithID = await Content.findOne({ id: req.params.id });
+    console.log(contentWithID);
+    res.status(200).send(contentWithID);
   } catch (err) {
     console.log("Error occurred", err);
     res.status(500).send("Internal Server Error");
