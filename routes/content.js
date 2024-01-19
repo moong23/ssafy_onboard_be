@@ -37,7 +37,7 @@ ContentRouter.post("/create", async function (req, res) {
     res.status(200).send("Content created");
   } catch (err) {
     console.log("Error occurred", err);
-    res.status(500).send("Internal Server Error");
+    return res.status(500).send("Internal Server Error");
   }
 });
 
@@ -45,7 +45,7 @@ ContentRouter.get("/", async function (req, res) {
   try {
     const content = await Content.find();
     console.log(content);
-    res.status(200).send(content);
+    return res.status(200).send(content);
   } catch (err) {
     console.log("Error occurred", err);
     res.status(500).send("Internal Server Error");
@@ -53,10 +53,24 @@ ContentRouter.get("/", async function (req, res) {
 });
 
 ContentRouter.get("/:id", async function (req, res) {
+  console.log(req.params.id);
   try {
     const contentWithID = await Content.findOne({ id: req.params.id });
     console.log(contentWithID);
-    res.status(200).send(contentWithID);
+    return res.status(200).send(contentWithID);
+  } catch (err) {
+    console.log("Error occurred", err);
+    return res.status(500).send("Internal Server Error");
+  }
+});
+
+ContentRouter.get("/filter/:writer", async function (req, res) {
+  try {
+    const content = await Content.find({ writer: req.params.writer });
+    // console.log(content);
+    if (content.length == 0) return res.status(204).send("Not Content Found");
+
+    return res.status(200).send(content);
   } catch (err) {
     console.log("Error occurred", err);
     res.status(500).send("Internal Server Error");
